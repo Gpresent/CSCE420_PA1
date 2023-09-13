@@ -31,7 +31,7 @@ def gradestate(state):
     for i in range(0, len(state)):
         for j in range(0, len(state[i])):
             if state[i][j] not in goal[i]:
-                h += len(state[i]) - j + 1
+                h += 1 + len(state[i]) - j
     return h
 
 
@@ -62,7 +62,7 @@ def genstates(parent_state):
             lastdig = newcond[i][-1]
             newcond[i] = newcond[i][0:-1]
             newcond[(i + j) % len(parent_state.cond)] += lastdig
-            newstate = state(newcond, gradestate(newcond))
+            newstate = state(newcond, 0)
             newstate.parent = parent_state
             states.append(newstate)
     return states
@@ -91,6 +91,8 @@ with open("probs/" + filename, "r") as f:
     print("goal:", goal)
     ancestor_state = state(cond, gradestate(cond))
     states = genstates(ancestor_state)
+    for i in states:
+        i.heuristic = gradestate(i.cond)
     known_states = dict()
     addstate(ancestor_state, known_states)
     heapq.heapify(states)
@@ -113,6 +115,7 @@ with open("probs/" + filename, "r") as f:
             newstates = genstates(best)
             for i in newstates:
                 if not checkstate(i, known_states):
+                    i.heuristic = gradestate(i.cond)
                     heapq.heappush(states, i)
                     # states.append(i)
                     addstate(i, known_states)
