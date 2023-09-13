@@ -1,8 +1,11 @@
 import sys
 import heapq
+import time
 
 args = sys.argv[1:]
 filename = args[0]
+
+goal = []
 
 
 # definition of state class
@@ -24,7 +27,12 @@ class state:
 
 # grades a state and assigns heuristic value
 def gradestate(state):
-    return 1
+    h = 0
+    for i in range(0, len(state)):
+        for j in range(0, len(state[i])):
+            if state[i][j] not in goal[i]:
+                h += len(state[i]) - j + 1
+    return h
 
 
 # function that adds state to the hash table of known states
@@ -62,6 +70,7 @@ def genstates(parent_state):
 
 with open("probs/" + filename, "r") as f:
     # read basic file info
+    t0 = time.time()
     lines = f.readlines()
     col_num, block_num, move_num = lines[0].strip().split()
     col_num = int(col_num)
@@ -74,7 +83,6 @@ with open("probs/" + filename, "r") as f:
     for i in range(0, col_num):
         cond.append(lines[line_num + i].strip())
     line_num += int(col_num) + 1
-    goal = []
     for i in range(0, col_num):
         goal.append(lines[line_num + i].strip())
 
@@ -88,6 +96,7 @@ with open("probs/" + filename, "r") as f:
     heapq.heapify(states)
     while len(states) > 0:
         best = heapq.heappop(states)
+        # best = states.pop(0)
         if best.cond == goal:
             print("goal reached\nFinal state:", best.cond)
             pathtogoal = []
@@ -105,4 +114,7 @@ with open("probs/" + filename, "r") as f:
             for i in newstates:
                 if not checkstate(i, known_states):
                     heapq.heappush(states, i)
+                    # states.append(i)
                     addstate(i, known_states)
+    t1 = time.time()
+    print("time taken:", t1 - t0)
