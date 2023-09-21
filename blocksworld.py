@@ -34,7 +34,7 @@ def H0(state):
             if i != goalMap[state[i][j]][0]:
                 h += 1
             if j != goalMap[state[i][j]][1]:
-                h += abs(j - goalMap[state[i][j]][1])
+                h += 1 + abs(j - goalMap[state[i][j]][1])
     return h
 
 
