@@ -49,9 +49,11 @@ def H1(state):
 
 
 gradestate = H0
+heuristicName = "Best heuristic"
 if len(args) > 1 and args[1] == "-H":
     if args[2] == "H1":
         gradestate = H1
+        heuristicName = "Simple heuristic"
 
 
 # function that adds state to the hash table of known states
@@ -111,7 +113,7 @@ with open("probs/" + filename, "r") as f:
     # debug printouts
     print("State:", cond)
     print("Goal:", goal)
-    print("Using heuristic:", gradestate)
+    print("Using heuristic:", heuristicName)
     ancestor_state = state(cond, gradestate(cond))
     states = genstates(ancestor_state)
     iters = 0
