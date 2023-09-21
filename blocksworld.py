@@ -6,6 +6,7 @@ args = sys.argv[1:]
 filename = args[0]
 
 goal = []
+goalMap = dict()
 
 
 # definition of state class
@@ -26,13 +27,30 @@ class state:
 
 
 # grades a state and assigns heuristic value
-def gradestate(state):
+def H0(state):
     h = 0
     for i in range(0, len(state)):
         for j in range(0, len(state[i])):
-            if state[i][j] not in goal[i]:
+            if i != goalMap[state[i][j]][0]:
+                h += 1
+            if j != goalMap[state[i][j]][1]:
+                h += abs(j - goalMap[state[i][j]][1])
+    return h
+
+
+# grades a state and assigns heuristic value
+def H1(state):
+    h = 0
+    for i in range(0, len(state)):
+        for j in range(0, len(state[i])):
+            if i != goalMap[state[i][j]][0]:
                 h += 1 + len(state[i]) - j
     return h
+
+
+gradestate = H0
+# if len(args) > 1 and args[2] == "-H":
+#     gradestate = fun(args[3])
 
 
 # function that adds state to the hash table of known states
@@ -85,22 +103,33 @@ with open("probs/" + filename, "r") as f:
     line_num += int(col_num) + 1
     for i in range(0, col_num):
         goal.append(lines[line_num + i].strip())
+    for i in range(0, len(goal)):
+        for j in range(0, len(goal[i])):
+            goalMap[goal[i][j]] = [i, j]
 
     # debug printouts
-    print("state:", cond)
-    print("goal:", goal)
+    print("State:", cond)
+    print("Goal:", goal)
+    print("Using heuristic:", gradestate)
     ancestor_state = state(cond, gradestate(cond))
     states = genstates(ancestor_state)
+    iters = 0
+    MAX_ITERS = 1000000
     for i in states:
         i.heuristic = gradestate(i.cond)
     known_states = dict()
     addstate(ancestor_state, known_states)
     heapq.heapify(states)
     while len(states) > 0:
+        if iters >= MAX_ITERS:
+            print("max iters (%g) reached" % MAX_ITERS)
+            print("current state:", best.cond)
+            break
+        iters += 1
         best = heapq.heappop(states)
         # best = states.pop(0)
         if best.cond == goal:
-            print("goal reached\nFinal state:", best.cond)
+            print("\033[34mGoal reached!\n\033[0mFinal state:", best.cond)
             pathtogoal = []
             while best.parent is not None:
                 pathtogoal.append(best.cond)
@@ -110,6 +139,7 @@ with open("probs/" + filename, "r") as f:
             for i in pathtogoal[::-1]:
                 print(i)
             print("number of moves:", len(pathtogoal))
+            print("number of iterations:", iters)
             break
         else:
             newstates = genstates(best)
