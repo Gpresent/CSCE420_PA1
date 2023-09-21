@@ -49,8 +49,9 @@ def H1(state):
 
 
 gradestate = H0
-# if len(args) > 1 and args[2] == "-H":
-#     gradestate = fun(args[3])
+if len(args) > 1 and args[1] == "-H":
+    if args[2] == "H1":
+        gradestate = H1
 
 
 # function that adds state to the hash table of known states
@@ -120,7 +121,10 @@ with open("probs/" + filename, "r") as f:
     known_states = dict()
     addstate(ancestor_state, known_states)
     heapq.heapify(states)
+    max_heap_size = 0
     while len(states) > 0:
+        if len(states) > max_heap_size:
+            max_heap_size = len(states)
         if iters >= MAX_ITERS:
             print("max iters (%g) reached" % MAX_ITERS)
             print("current state:", best.cond)
@@ -129,17 +133,18 @@ with open("probs/" + filename, "r") as f:
         best = heapq.heappop(states)
         # best = states.pop(0)
         if best.cond == goal:
-            print("\033[34mGoal reached!\n\033[0mFinal state:", best.cond)
+            print("\033[34mGoal reached!\n\033[0mFinal State:", best.cond)
             pathtogoal = []
             while best.parent is not None:
                 pathtogoal.append(best.cond)
                 best = best.parent
-            print("path to goal:")
+            print("Path to Goal:")
             print(ancestor_state.cond)
             for i in pathtogoal[::-1]:
                 print(i)
-            print("number of moves:", len(pathtogoal))
-            print("number of iterations:", iters)
+            print("Number of moves:", len(pathtogoal))
+            print("Number of iterations:", iters)
+            print("Max heap size:", max_heap_size)
             break
         else:
             newstates = genstates(best)
