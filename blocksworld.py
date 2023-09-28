@@ -15,6 +15,7 @@ class state:
         self.cond = cond
         self.parent = None
         self.heuristic = heuristic
+        self.pathcost = 0;
 
     def __lt__(self, other):
         return self.heuristic < other.heuristic
@@ -25,35 +26,55 @@ class state:
     def __str__(self):
         return str(self.cond) + " " + str(self.heuristic)
 
-
-# grades a state and assigns heuristic value
 def H0(state):
-    h = 0
-    for i in range(0, len(state)):
-        for j in range(0, len(state[i])):
-            if i != goalMap[state[i][j]][0]:
-                h += 1
-            if j != goalMap[state[i][j]][1]:
-                h += 1 + abs(j - goalMap[state[i][j]][1])
-    return h
-
-
+    return 0
+    
 # grades a state and assigns heuristic value
 def H1(state):
-    h = 0
-    for i in range(0, len(state)):
-        for j in range(0, len(state[i])):
-            if i != goalMap[state[i][j]][0]:
-                h += 1 + len(state[i]) - j
+    h = state.pathcost
+    for i in range(0, len(state.cond)):
+        for j in range(0, len(state.cond[i])):
+            if i != goalMap[state.cond[i][j]][0]:
+                h += 2
+            if j != goalMap[state.cond[i][j]][1]:
+                h += 1 + (2 * abs(j - goalMap[state.cond[i][j]][1]))
     return h
 
 
-gradestate = H0
-heuristicName = "Best heuristic"
-if len(args) > 1 and args[1] == "-H":
-    if args[2] == "H1":
-        gradestate = H1
-        heuristicName = "Simple heuristic"
+# grades a state and assigns heuristic value
+def H2(state):
+    h = state.pathcost
+    for i in range(0, len(state.cond)):
+        for j in range(0, len(state.cond[i])):
+            if i != goalMap[state.cond[i][j]][0]:
+                h += 1 + len(state.cond[i]) - j
+    return h
+
+MAX_ITERS = 1000000
+gradestate = H1
+BFS = False
+heuristicName = "Best heuristic (A*, H1)"
+for i in range(0, len(args)):
+    if len(args) > i and args[i] == "-H":
+        if args[i + 1] == "H0":
+            gradestate = H0
+            heuristicName = "BFS (H0)"
+            BFS = True
+        elif args[i + 1] == "H1":
+            gradestate = H1
+            heuristicName = "Best Heuristic (A*, H1)"
+        elif args[i + 1] == "H2":
+            gradestate = H2
+            heuristicName = "Simple Heuristic (A*, H2)"
+        else:
+            print("Invalid heuristic")
+            exit()
+    if len(args) > i and args[i] == "-MAX_ITERS":
+        if args[i + 1].isnumeric():
+            MAX_ITERS = int(args[i + 1])
+        else:
+            print("Invalid max iterations")
+            exit()
 
 
 # function that adds state to the hash table of known states
@@ -85,6 +106,7 @@ def genstates(parent_state):
             newcond[(i + j) % len(parent_state.cond)] += lastdig
             newstate = state(newcond, 0)
             newstate.parent = parent_state
+            newstate.pathcost = parent_state.pathcost + 1
             states.append(newstate)
     return states
 
@@ -111,50 +133,59 @@ with open("probs/" + filename, "r") as f:
             goalMap[goal[i][j]] = [i, j]
 
     # debug printouts
-    print("State:", cond)
-    print("Goal:", goal)
-    print("Using heuristic:", heuristicName)
-    ancestor_state = state(cond, gradestate(cond))
+    print("\033[33mStarting State:\033[0m", cond)
+    print("\033[33mGoal:\033[0m", goal)
+    print("\033[33mUsing heuristic:\033[0m", heuristicName)
+    ancestor_state = state(cond, 0)
+    ancestor_state.heuristic = gradestate(ancestor_state)
     states = genstates(ancestor_state)
     iters = 0
-    MAX_ITERS = 1000000
     for i in states:
-        i.heuristic = gradestate(i.cond)
+        i.heuristic = gradestate(i)
     known_states = dict()
     addstate(ancestor_state, known_states)
-    heapq.heapify(states)
+    if not BFS:
+        heapq.heapify(states)
     max_heap_size = 0
     while len(states) > 0:
         if len(states) > max_heap_size:
             max_heap_size = len(states)
         if iters >= MAX_ITERS:
-            print("max iters (%g) reached" % MAX_ITERS)
-            print("current state:", best.cond)
+            print(f"\n\033[31mMax Iters ({MAX_ITERS}) Reached!")
+            print("Current State:\033[0m", best.cond)
+            print()
             break
         iters += 1
-        best = heapq.heappop(states)
-        # best = states.pop(0)
+        if not BFS:
+            best = heapq.heappop(states)
+        else:
+            best = states.pop(0)
         if best.cond == goal:
-            print("\033[34mGoal reached!\n\033[0mFinal State:", best.cond)
+            print("\033[32m\nGoal reached!")
             pathtogoal = []
             while best.parent is not None:
                 pathtogoal.append(best.cond)
                 best = best.parent
-            print("Path to Goal:")
-            print(ancestor_state.cond)
+            print("Path to Goal:\033[0m")
+            print(ancestor_state.cond, "\033[33m<- Start\033[0m")
             for i in pathtogoal[::-1]:
-                print(i)
-            print("Number of moves:", len(pathtogoal))
-            print("Number of iterations:", iters)
-            print("Max heap size:", max_heap_size)
+                if i == pathtogoal[0]:
+                    print(goal, "\033[33m<- Goal\033[0m")
+                else:
+                    print(i)
+            pathLength = len(pathtogoal)
+            print(f"\n\033[33mStatistics: \033[34m{filename}\033[0m, Method: \033[34m{heuristicName}\033[0m, Moves: \033[34m{pathLength}\033[0m, Iterations: \033[34m{iters}\033[0m, Max Heap Size: \033[34m{max_heap_size}\033[0m")
             break
         else:
             newstates = genstates(best)
             for i in newstates:
                 if not checkstate(i, known_states):
-                    i.heuristic = gradestate(i.cond)
-                    heapq.heappush(states, i)
-                    # states.append(i)
+                    i.heuristic = gradestate(i)
+                    if not BFS:
+                        heapq.heappush(states, i)
+                    else:
+                        states.append(i)
                     addstate(i, known_states)
     t1 = time.time()
-    print("time taken:", t1 - t0)
+    print("\033[33mTime Taken:\033[0m", t1 - t0)
+    print()
