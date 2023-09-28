@@ -21,10 +21,11 @@ The **-MAX_ITER** argument can be followed by any positive integer. If it is not
 
 The program assumes that the problem definition file is formatted correctly. There are no known limits on what the best heuristic can calculate in terms of number of stacks, but the problems must contain 26 blocks or less for the encoding to function properly.
 
-## Heuristic Function
+## Heuristic Function H1
 
 The best heuristic function (used by default) is the sum of the following three values:
 - The path length
 - Twice the number of blocks that are in the wrong stack
 - The number of blocks that are at the wrong height in their stack, plus twice the difference between their current and their correct height
+
 This biases the function away from focusing solely on finding the shortest path by multiplying the other heuristic components by > 1. Higher biases cause certain problem types (e.g. probB13.bwp) to take much longer to solve to the benefit of others (e.g. probB19.bwp), while lower biases cause the opposite.
