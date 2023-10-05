@@ -1,0 +1,62 @@
+The best heuristic that I came up with is the sum of the following three values:
+- The path length
+- Twice the number of blocks that are in the wrong stack
+- The number of blocks that are at the wrong height in their stack, plus twice the difference between their current and their correct height
+
+Consider the following two states reached during program execution on probB09.bwp, along with the starting and goal states:
+
+State 1:                State 2:
+Heuristic: 29           Heuristic: 15
+Moves remaining: 13     Moves remaining: 1
+Moves made: 1           Moves made: 13  
+>>>>>>>>>>              >>>>>>>>>>
+FIJ                     FEJ
+CDGH                    CDGA
+E                       H
+
+AB                      BI
+>>>>>>>>>>              >>>>>>>>>>
+
+Start:                  Goal:
+>>>>>>>>>>              >>>>>>>>>>
+FI                      FEJA
+CDGHJ                   CDG
+E                       H
+
+AB                      BI
+>>>>>>>>>>              >>>>>>>>>>
+
+In the first scenario, only one move has occured, but the state is very far from the goal. A adds 9 points (2 for being in the wrong stack, 1 for being at the wrong height, and 6 for being 3 off in height with a multiplier of 2). B adds 3 points (1 for being at the wrong height and 2 for the height difference to the goal). In this way, C adds 0 points, D adds 0 points, E adds 5 points, F adds 0 points, G adds 0 points, H adds 9 points, I adds 2 points, and J adds 0 points. The heuristic is thus those 28 points plus 1 for the move made, for a total of 29.
+
+In the second scenario, 13 moves have occured, but the state is very close to the goal. A adds 2 points, but all other blocks add 0 points. The heuristic is thus 2 points plus 13 for the move made, for a total of 15.
+
+
+Summary of results for test cases:
+
+probA03.bwp,    Moves: 3,     Iterations: 3,      Max Heap Size: 12
+probA04.bwp,    Moves: 4,     Iterations: 10,     Max Heap Size: 18
+probA05.bwp,    Moves: 5,     Iterations: 6,      Max Heap Size: 15
+probA06.bwp,    Moves: 6,     Iterations: 61,     Max Heap Size: 59
+probA07.bwp,    Moves: 10,    Iterations: 196,    Max Heap Size: 302
+probA08.bwp,    Moves: 13,    Iterations: 122,    Max Heap Size: 198
+probA09.bwp,    Moves: 14,    Iterations: 260,    Max Heap Size: 391
+probA10.bwp,    Moves: 11,    Iterations: 110,    Max Heap Size: 170
+probA11.bwp,    Moves: 16,    Iterations: 264,    Max Heap Size: 442
+probB03.bwp,    Moves: 3,     Iterations: 3,      Max Heap Size: 42
+probB04.bwp,    Moves: 7,     Iterations: 43,     Max Heap Size: 419
+probB05.bwp,    Moves: 5,     Iterations: 5,      Max Heap Size: 75
+probB06.bwp,    Moves: 7,     Iterations: 8,      Max Heap Size: 92
+probB07.bwp,    Moves: 9,     Iterations: 147,    Max Heap Size: 1664
+probB08.bwp,    Moves: 13,    Iterations: 108,    Max Heap Size: 774
+probB09.bwp,    Moves: 14,    Iterations: 52,     Max Heap Size: 516
+probB10.bwp,    Moves: 16,    Iterations: 92,     Max Heap Size: 856
+probB11.bwp,    Moves: 9,     Iterations: 11,     Max Heap Size: 135
+probB12.bwp,    Moves: 15,    Iterations: 76,     Max Heap Size: 774
+probB13.bwp,    Moves: 17,    Iterations: 50258,  Max Heap Size: 186645
+probB14.bwp,    Moves: 19,    Iterations: 4365,   Max Heap Size: 32833
+probB15.bwp,    Moves: 29,    Iterations: 2957,   Max Heap Size: 23522
+probB16.bwp,    Moves: 27,    Iterations: 22448,  Max Heap Size: 146392
+probB17.bwp,    Moves: 27,    Iterations: 343,    Max Heap Size: 3225
+probB18.bwp,    Moves: 19,    Iterations: 2580,   Max Heap Size: 23540
+probB19.bwp,    Moves: 32,    Iterations: 51110,  Max Heap Size: 206276
+probB20.bwp,    Moves: 28,    Iterations: 12468,  Max Heap Size: 114837

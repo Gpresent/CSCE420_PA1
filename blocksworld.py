@@ -164,7 +164,7 @@ with open("probs/" + filename, "r") as f:
             print("\033[32m\nGoal reached!")
             pathtogoal = []
             while best.parent is not None:
-                pathtogoal.append(best.cond)
+                pathtogoal.append(best)
                 best = best.parent
             print("Path to Goal:\033[0m")
             print(ancestor_state.cond, "\033[33m<- Start\033[0m")
@@ -172,7 +172,7 @@ with open("probs/" + filename, "r") as f:
                 if i == pathtogoal[0]:
                     print(goal, "\033[33m<- Goal\033[0m")
                 else:
-                    print(i)
+                    print(i.cond)
             pathLength = len(pathtogoal)
             print(f"\n\033[33mStatistics: \033[34m{filename}\033[0m, Method: \033[34m{heuristicName}\033[0m, Moves: \033[34m{pathLength}\033[0m, Iterations: \033[34m{iters}\033[0m, Max Heap Size: \033[34m{max_heap_size}\033[0m")
             break
